@@ -1,0 +1,33 @@
+version: '3.1'
+
+services:
+  backend:
+    build: .
+    networks:
+      - test-twitter-feed
+    ports:
+      - 3000:3000
+    volumes:
+      - ./storage/:/storage/
+    environment:
+      DATABASE_URL: "postgresql://root@roach-single:26257/defaultdb?sslmode=disable"
+#   roach-single:
+#     image: cockroachdb/cockroach:v23.1.2
+#     environment:
+#       COCKROACH_DATABASE: test
+#       COCKROACH_USER: test
+#       COCKROACH_PASSWORD: test
+#     hostname: roach-single
+#     ports:
+#       - 26257:26257
+#       - 8080:8080
+#     volumes:
+#       - roach-single:/cockroach/cockroach-data
+#     command: "start-single-node --http-addr=localhost:8080"
+# volumes:
+#   roach-single:
+#     external: true
+networks:
+  test-twitter-feed:
+    name: roachnet
+    external: true
