@@ -6,14 +6,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const queueName = "messages"
+
 func main() {
 	cmd := &cobra.Command{
 		Use: "twitter-feed",
 		Run: func(cmd *cobra.Command, args []string) {},
 	}
 
-	cmd.AddCommand(sse.NewSSECommand())
-	cmd.AddCommand(api.NewServerCommand())
+	cmd.AddCommand(sse.NewSSECommand(queueName))
+	cmd.AddCommand(api.NewServerCommand(queueName))
 
 	err := cmd.Execute()
 	if err != nil {

@@ -2,35 +2,64 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/Eviljeks/test-twitter-feed/internal/amqp/publisher"
+	"github.com/Eviljeks/test-twitter-feed/pkg/amqputil"
 	"github.com/Eviljeks/test-twitter-feed/pkg/pgutil"
 )
 
 type Config struct {
-	Port string
+	Port              string
+	MessagesQueueName string
 }
 
-func DefaultConfig() *Config {
+func DefaultConfig(messagesQueueName string) *Config {
 	return &Config{
-		Port: ":3000",
+		MessagesQueueName: messagesQueueName,
+		Port:              ":3000",
 	}
 }
 
 func (c *Config) Run() {
 	ctx := context.Background()
+
+	// setup db
 	conn, err := pgutil.Connect(ctx, os.Getenv("DATABASE_URL"))
 	if err != nil {
-		logrus.Fatalf("db connection faild, err: %s", err.Error())
+		panic(fmt.Sprintf("db connection failed, err: %s", err.Error()))
 	}
 	logrus.Infoln("db connected")
 	defer conn.Close(ctx)
 
-	r, err := NewHandler(c, conn)
+	// setup amqp
+	amqpConn, err := amqputil.Connect(ctx, os.Getenv("AMQP_URL"), time.Second, uint8(5))
+	if err != nil {
+		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
+	}
+	defer amqpConn.Close()
+
+	ch, err := amqpConn.Channel()
+	if err != nil {
+		panic(fmt.Sprintf("amqp channel failed, err: %s", err.Error()))
+	}
+	defer ch.Close()
+
+	publisher := publisher.NewSingleQueueAMQPPublisher(ch, c.MessagesQueueName)
+	err = publisher.Setup()
+	if err != nil {
+		panic(fmt.Sprintf("publisher failed, err: %s", err.Error()))
+	}
+
+	// end setup
+
+	r, err := NewHandler(c, conn, publisher)
 	if err != nil {
 		panic(err)
 	}

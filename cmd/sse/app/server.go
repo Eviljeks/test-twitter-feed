@@ -10,13 +10,15 @@ import (
 
 type Config struct {
 	NewMessageEventName string
+	MessagesQueueName   string
 	AddedChanCap        int
 	Port                string
 }
 
-func DefaultConfig() *Config {
+func DefaultConfig(messagesQueueName string) *Config {
 	return &Config{
 		NewMessageEventName: "messages",
+		MessagesQueueName:   messagesQueueName,
 		AddedChanCap:        10,
 		Port:                ":3000",
 	}

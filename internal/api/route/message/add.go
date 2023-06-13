@@ -11,13 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type AddHandler struct {
-	store *store.Store
+type Publisher interface {
+	Publish(data interface{}) error
 }
 
-func NewAddHandler(store *store.Store) *AddHandler {
+type AddHandler struct {
+	store     *store.Store
+	publisher Publisher
+}
+
+func NewAddHandler(store *store.Store, publisher Publisher) *AddHandler {
 	return &AddHandler{
-		store: store,
+		store:     store,
+		publisher: publisher,
 	}
 }
 
@@ -43,6 +49,13 @@ func (ah *AddHandler) Handle(r gin.IRouter) {
 		_, err := ah.store.SaveMessage(ctx, m)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, api.ErrorInternalServer(err))
+
+			return
+		}
+
+		err = ah.publisher.Publish(m)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, api.ErrorBadRequest(err))
 
 			return
 		}

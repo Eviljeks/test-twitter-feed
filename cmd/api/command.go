@@ -5,11 +5,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewServerCommand() *cobra.Command {
+func NewServerCommand(queueName string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "api",
 		Run: func(cmd *cobra.Command, args []string) {
-			cfg := app.DefaultConfig()
+			cfg := app.DefaultConfig(queueName)
 
 			cfg.Run()
 		},

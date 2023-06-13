@@ -9,14 +9,33 @@ services:
       - 3000:3000
     environment:
       DATABASE_URL: "postgresql://root@roach-single:26257/defaultdb?sslmode=disable"
+      AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"
     command: "/twitter-feed api"
+    depends_on:
+      - rabbitmq
   sse:
     build: .
     networks:
       - test-twitter-feed
     ports:
       - 3001:3000
+    environment:
+      AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"
     command: "/twitter-feed sse"
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+        - 5672:5672
+        - 15672:15672
+    networks:
+      - test-twitter-feed
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
 #   roach-single:
 #     image: cockroachdb/cockroach:v23.1.2
 #     environment:
