@@ -1,4 +1,4 @@
-package publisher
+package amqp
 
 import (
 	"encoding/json"

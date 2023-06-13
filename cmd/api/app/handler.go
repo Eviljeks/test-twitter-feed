@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Eviljeks/test-twitter-feed/internal/amqp/publisher"
+	publisher "github.com/Eviljeks/test-twitter-feed/internal/amqp"
 	"github.com/Eviljeks/test-twitter-feed/internal/api/route/message"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
 	"github.com/gin-gonic/gin"

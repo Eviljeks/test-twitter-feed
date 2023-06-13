@@ -10,7 +10,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/Eviljeks/test-twitter-feed/internal/amqp/publisher"
+	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
 	"github.com/Eviljeks/test-twitter-feed/pkg/amqputil"
 	"github.com/Eviljeks/test-twitter-feed/pkg/pgutil"
 )
@@ -51,8 +51,9 @@ func (c *Config) Run() {
 	}
 	defer ch.Close()
 
-	publisher := publisher.NewSingleQueueAMQPPublisher(ch, c.MessagesQueueName)
-	err = publisher.Setup()
+	amqp.Setup(ch, c.MessagesQueueName)
+
+	publisher := amqp.NewSingleQueueAMQPPublisher(ch, c.MessagesQueueName)
 	if err != nil {
 		panic(fmt.Sprintf("publisher failed, err: %s", err.Error()))
 	}

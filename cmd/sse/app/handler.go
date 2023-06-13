@@ -2,13 +2,12 @@ package app
 
 import (
 	"github.com/Eviljeks/test-twitter-feed/internal/api/route/sse"
-	"github.com/Eviljeks/test-twitter-feed/internal/messages"
+	"github.com/Eviljeks/test-twitter-feed/internal/subscriber"
 	"github.com/gin-gonic/gin"
 )
 
-func NewHandler(cfg *Config) (*gin.Engine, error) {
-	addedCh := make(chan messages.Message, cfg.AddedChanCap)
-	newHandler := sse.NewNewHandler(cfg.NewMessageEventName, addedCh)
+func NewHandler(cfg *Config, agent *subscriber.Agent) (*gin.Engine, error) {
+	newHandler := sse.NewNewHandler(cfg.NewMessageEventName, agent)
 
 	r := gin.Default()
 
