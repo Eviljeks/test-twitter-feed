@@ -12,12 +12,14 @@ import (
 )
 
 type Config struct {
-	AddedChanCap int
+	NewMessageEventName string
+	AddedChanCap        int
 }
 
 func DefaultConfig() *Config {
 	return &Config{
-		AddedChanCap: 10,
+		NewMessageEventName: "messages",
+		AddedChanCap:        10,
 	}
 }
 
@@ -30,7 +32,10 @@ func (c *Config) Run() {
 	logrus.Infoln("db connected")
 	defer conn.Close(ctx)
 
-	r := NewHandler(c, conn)
+	r, err := NewHandler(c, conn)
+	if err != nil {
+		panic(err)
+	}
 
 	go func() {
 		sErr := r.Run(":3000")

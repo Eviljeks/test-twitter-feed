@@ -8,18 +8,26 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-func NewHandler(cfg *Config, conn *pgx.Conn) *gin.Engine {
+func NewHandler(cfg *Config, conn *pgx.Conn) (*gin.Engine, error) {
 	s := store.NewStore(conn)
 
 	addedCh := make(chan messages.Message, cfg.AddedChanCap)
+	listHandler, err := message.NewListHandler(s, addedCh)
+	if err != nil {
+		return nil, err
+	}
 
 	addHandler := message.NewAddHandler(s, addedCh)
-	listHandler := message.NewListHandler(s, addedCh)
+	newHandler := message.NewNewHandler(cfg.NewMessageEventName, addedCh)
 
 	r := gin.Default()
 
-	addHandler.Handle(r)
+	api := r.Group("/api")
+
+	addHandler.Handle(api)
+	newHandler.Handle(api)
+
 	listHandler.Handle(r)
 
-	return r
+	return r, nil
 }

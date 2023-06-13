@@ -1,7 +1,7 @@
 package message
 
 import (
-	"io"
+	"html/template"
 	"net/http"
 
 	"github.com/Eviljeks/test-twitter-feed/internal/api"
@@ -10,16 +10,49 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const tpl = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Twitter feed</title>
+	</head>
+	<body>
+		<h3>Feed</h3>
+		<div id="feed">
+		{{range .Msgs}}<div>{{ .UUID }}: {{ .Content }} </div>{{end}}
+		</div>
+	</body>
+	<script>
+	const evtSource = new EventSource("http://localhost:3000/api/messages/new");
+
+	evtSource.addEventListener("messages", (event) => {
+		const newElement = document.createElement("div");
+		const eventList = document.getElementById("feed");
+		const data = JSON.parse(event.data);
+		newElement.textContent = data.uuid + ": " + data.content;
+		eventList.prepend(newElement);
+	  });
+	</script>
+</html>`
+
 type ListHandler struct {
-	store   *store.Store
-	addedCh <-chan messages.Message
+	store    *store.Store
+	addedCh  <-chan messages.Message
+	template *template.Template
 }
 
-func NewListHandler(store *store.Store, addedCh <-chan messages.Message) *ListHandler {
-	return &ListHandler{
-		store:   store,
-		addedCh: addedCh,
+func NewListHandler(store *store.Store, addedCh <-chan messages.Message) (*ListHandler, error) {
+	t, err := template.New("webpage").Parse(tpl)
+	if err != nil {
+		return nil, err
 	}
+
+	return &ListHandler{
+		store:    store,
+		addedCh:  addedCh,
+		template: t,
+	}, nil
 }
 
 func (lh *ListHandler) Handle(r gin.IRouter) {
@@ -31,16 +64,12 @@ func (lh *ListHandler) Handle(r gin.IRouter) {
 			return
 		}
 
-		for _, msg := range msgs {
-			ctx.JSON(200, msg)
+		data := struct {
+			Msgs []*messages.Message
+		}{
+			Msgs: msgs,
 		}
 
-		ctx.Stream(func(w io.Writer) bool {
-			if msg, ok := <-lh.addedCh; ok {
-				ctx.JSON(200, msg)
-				return true
-			}
-			return false
-		})
+		lh.template.Execute(ctx.Writer, data)
 	})
 }
