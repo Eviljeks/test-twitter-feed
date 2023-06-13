@@ -1,4 +1,4 @@
-package message
+package sse
 
 import (
 	"io"
@@ -21,6 +21,8 @@ func NewNewHandler(eventName string, addedCh <-chan messages.Message) *NewHandle
 
 func (nh *NewHandler) Handle(r gin.IRouter) {
 	r.GET("/messages/new", func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Origin", "*")
+
 		ctx.Stream(func(w io.Writer) bool {
 			if msg, ok := <-nh.addedCh; ok {
 				ctx.SSEvent(nh.eventName, msg)

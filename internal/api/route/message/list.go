@@ -24,7 +24,7 @@ const tpl = `
 		</div>
 	</body>
 	<script>
-	const evtSource = new EventSource("http://localhost:3000/api/messages/new");
+	const evtSource = new EventSource("http://localhost:3001/sse/messages/new");
 
 	evtSource.addEventListener("messages", (event) => {
 		const newElement = document.createElement("div");
@@ -38,11 +38,10 @@ const tpl = `
 
 type ListHandler struct {
 	store    *store.Store
-	addedCh  <-chan messages.Message
 	template *template.Template
 }
 
-func NewListHandler(store *store.Store, addedCh <-chan messages.Message) (*ListHandler, error) {
+func NewListHandler(store *store.Store) (*ListHandler, error) {
 	t, err := template.New("webpage").Parse(tpl)
 	if err != nil {
 		return nil, err
@@ -50,7 +49,6 @@ func NewListHandler(store *store.Store, addedCh <-chan messages.Message) (*ListH
 
 	return &ListHandler{
 		store:    store,
-		addedCh:  addedCh,
 		template: t,
 	}, nil
 }

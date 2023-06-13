@@ -1,16 +1,22 @@
 version: '3.1'
 
 services:
-  backend:
+  api:
     build: .
     networks:
       - test-twitter-feed
     ports:
       - 3000:3000
-    volumes:
-      - ./storage/:/storage/
     environment:
       DATABASE_URL: "postgresql://root@roach-single:26257/defaultdb?sslmode=disable"
+    command: "/twitter-feed api"
+  sse:
+    build: .
+    networks:
+      - test-twitter-feed
+    ports:
+      - 3001:3000
+    command: "/twitter-feed sse"
 #   roach-single:
 #     image: cockroachdb/cockroach:v23.1.2
 #     environment:

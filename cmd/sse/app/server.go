@@ -1,44 +1,35 @@
 package app
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/Eviljeks/test-twitter-feed/pkg/pgutil"
 )
 
 type Config struct {
 	NewMessageEventName string
 	AddedChanCap        int
+	Port                string
 }
 
 func DefaultConfig() *Config {
 	return &Config{
 		NewMessageEventName: "messages",
 		AddedChanCap:        10,
+		Port:                ":3000",
 	}
 }
 
 func (c *Config) Run() {
-	ctx := context.Background()
-	conn, err := pgutil.Connect(ctx, os.Getenv("DATABASE_URL"))
-	if err != nil {
-		logrus.Fatalf("db connection faild, err: %s", err.Error())
-	}
-	logrus.Infoln("db connected")
-	defer conn.Close(ctx)
-
-	r, err := NewHandler(c, conn)
+	r, err := NewHandler(c)
 	if err != nil {
 		panic(err)
 	}
 
 	go func() {
-		sErr := r.Run(":3000")
+		sErr := r.Run(c.Port)
 		if sErr != nil {
 			logrus.Fatalf("failed to run server: %v", sErr)
 		}

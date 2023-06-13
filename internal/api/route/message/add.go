@@ -12,14 +12,12 @@ import (
 )
 
 type AddHandler struct {
-	store   *store.Store
-	addedCh chan<- messages.Message
+	store *store.Store
 }
 
-func NewAddHandler(store *store.Store, addedCh chan<- messages.Message) *AddHandler {
+func NewAddHandler(store *store.Store) *AddHandler {
 	return &AddHandler{
-		store:   store,
-		addedCh: addedCh,
+		store: store,
 	}
 }
 
@@ -48,8 +46,6 @@ func (ah *AddHandler) Handle(r gin.IRouter) {
 
 			return
 		}
-
-		ah.addedCh <- m
 
 		ctx.JSON(http.StatusOK, api.OK(m))
 	})
