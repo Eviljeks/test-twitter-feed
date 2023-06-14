@@ -9,7 +9,7 @@ func NewServerCommand(queueName string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "api",
 		Run: func(cmd *cobra.Command, args []string) {
-			cfg := app.DefaultConfig(queueName)
+			cfg := app.NewConfig(queueName)
 
 			cfg.Run()
 		},

@@ -9,7 +9,7 @@ func NewSSECommand(messagesQueueName string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "sse",
 		Run: func(cmd *cobra.Command, args []string) {
-			cfg := app.DefaultConfig(messagesQueueName)
+			cfg := app.NewConfig(messagesQueueName)
 
 			cfg.Run()
 		},

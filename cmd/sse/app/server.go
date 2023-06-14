@@ -20,7 +20,7 @@ type Config struct {
 	Port                string
 }
 
-func DefaultConfig(messagesQueueName string) *Config {
+func NewConfig(messagesQueueName string) *Config {
 	return &Config{
 		NewMessageEventName: "messages",
 		MessagesQueueName:   messagesQueueName,

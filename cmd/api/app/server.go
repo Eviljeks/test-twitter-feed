@@ -20,7 +20,7 @@ type Config struct {
 	MessagesQueueName string
 }
 
-func DefaultConfig(messagesQueueName string) *Config {
+func NewConfig(messagesQueueName string) *Config {
 	return &Config{
 		MessagesQueueName: messagesQueueName,
 		Port:              ":3000",
