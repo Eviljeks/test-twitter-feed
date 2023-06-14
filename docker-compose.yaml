@@ -25,6 +25,16 @@ services:
     command: "/twitter-feed sse"
     depends_on:
       - rabbitmq
+  bot:
+    image: twitter-feed:latest
+    networks:
+      - test-twitter-feed
+    environment:
+      API_BASE_PATH: "http://api:3000/api"
+    command: "/twitter-feed bot --delay=15 --reqs=10"
+    depends_on:
+      - rabbitmq
+      - api
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Eviljeks/test-twitter-feed/cmd/api"
+	"github.com/Eviljeks/test-twitter-feed/cmd/bot"
 	"github.com/Eviljeks/test-twitter-feed/cmd/sse"
 	"github.com/spf13/cobra"
 )
@@ -16,6 +17,7 @@ func main() {
 
 	cmd.AddCommand(sse.NewSSECommand(queueName))
 	cmd.AddCommand(api.NewServerCommand(queueName))
+	cmd.AddCommand(bot.NewBotCommand())
 
 	err := cmd.Execute()
 	if err != nil {

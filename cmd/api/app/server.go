@@ -77,5 +77,5 @@ func (c *Config) Run() {
 
 	<-quit
 
-	logrus.Print("Server received shutdown signal")
+	logrus.Print("Api server received shutdown signal")
 }

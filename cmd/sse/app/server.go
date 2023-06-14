@@ -85,5 +85,5 @@ func (c *Config) Run() {
 
 	<-quit
 
-	logrus.Print("Server received shutdown signal")
+	logrus.Print("SSE server received shutdown signal")
 }
