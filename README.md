@@ -29,3 +29,7 @@ docker rm roach-single
 
 docker volume rm roach-single
 ```
+
+```
+docker build -t twitter-feed .
+```
