@@ -21,6 +21,5 @@ WORKDIR /
 COPY --from=build /twitter-feed /twitter-feed
 
 EXPOSE 3000
-EXPOSE 3001
 
 USER nonroot:nonroot
