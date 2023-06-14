@@ -31,7 +31,7 @@ services:
       - test-twitter-feed
     environment:
       API_BASE_PATH: "http://api:3000/api"
-    command: "/twitter-feed bot --delay=15 --reqs=10"
+    command: "/twitter-feed bot --delay=15 --reqs-per-min=12"
     depends_on:
       - rabbitmq
       - api

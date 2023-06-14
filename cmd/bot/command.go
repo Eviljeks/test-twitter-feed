@@ -19,7 +19,7 @@ func NewBotCommand() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().UintVar(&cfg.DelaySec, "delay", uint(0), "delay sec")
-	cmd.PersistentFlags().UintVar(&cfg.RequestsPerMin, "reqs", uint(60), "requests per min")
+	cmd.PersistentFlags().UintVar(&cfg.RequestsPerMin, "reqs-per-min", uint(60), "requests per min")
 
 	return cmd
 }
