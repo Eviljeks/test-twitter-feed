@@ -2,11 +2,11 @@ package app
 
 import (
 	"context"
-	"log"
 	"math/rand"
 	"time"
 
 	"github.com/jaswdr/faker"
+	"github.com/sirupsen/logrus"
 
 	"github.com/Eviljeks/test-twitter-feed/pkg/client"
 )
@@ -41,7 +41,7 @@ func (b *Bot) Run(ctx context.Context) {
 			content := faker.New().Lorem().Sentence(rand.Intn(wordsMax-wordsMin) + wordsMin)
 			err := b.apiClient.SaveMessage(content)
 			if err != nil {
-				log.Default().Println(err.Error())
+				logrus.Errorln(err.Error())
 			}
 		case <-ctx.Done():
 			return

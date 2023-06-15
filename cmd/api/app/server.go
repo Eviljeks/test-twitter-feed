@@ -31,7 +31,7 @@ func (c *Config) Run() {
 	ctx := context.Background()
 
 	// setup db
-	conn, err := pgutil.Connect(ctx, os.Getenv("DATABASE_URL"))
+	conn, err := pgutil.ConnectWithWait(ctx, os.Getenv("DATABASE_URL"), time.Second, uint8(5))
 	if err != nil {
 		panic(fmt.Sprintf("db connection failed, err: %s", err.Error()))
 	}

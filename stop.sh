@@ -1,12 +1,5 @@
 #!/bin/bash
 
- docker compose down
-
- docker stop -t 300 roach1 roach2
- 
- docker rm roach1 roach2
- 
- docker volume rm roach1 roach2
+ docker compose down -t 20
 
  docker network rm roachnet
-
