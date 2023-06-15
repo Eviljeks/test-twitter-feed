@@ -18,6 +18,7 @@ type Config struct {
 	NewMessageEventName string
 	MessagesQueueName   string
 	Port                string
+	ShutdownDelay       uint8
 }
 
 func NewConfig(messagesQueueName string) *Config {
@@ -25,11 +26,12 @@ func NewConfig(messagesQueueName string) *Config {
 		NewMessageEventName: "messages",
 		MessagesQueueName:   messagesQueueName,
 		Port:                ":3000",
+		ShutdownDelay:       2,
 	}
 }
 
 func (c *Config) Run() {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// setup amqp
 	amqpConn, err := amqputil.Connect(ctx, os.Getenv("AMQP_URL"), time.Second, uint8(5))
@@ -63,12 +65,18 @@ func (c *Config) Run() {
 	defer agent.Close()
 
 	go func() {
-		for d := range msgs {
-			agent.Publish(string(d.Body)) // TODO move to consumer
+		for {
+			select {
+			case d := <-msgs:
+				agent.Publish(string(d.Body))
+			case <-ctx.Done():
+				return
+
+			}
 		}
 	}()
 
-	r, err := NewHandler(c, agent)
+	r, err := NewHandler(ctx, c, agent)
 	if err != nil {
 		panic(err)
 	}
@@ -86,4 +94,10 @@ func (c *Config) Run() {
 	<-quit
 
 	logrus.Print("SSE server received shutdown signal")
+
+	cancel()
+
+	time.Sleep(time.Second * time.Duration(c.ShutdownDelay))
+
+	logrus.Print("SSE canceled")
 }
