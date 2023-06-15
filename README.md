@@ -41,7 +41,7 @@ To increase bot's post frequency, increase `--reqs-per-min` argument for `bot` s
 - Better configuration
 - Tests
 - Linter
-- Graceful shutdown (SSE first of all)
+- Graceful shutdown for all services
 
 # Other
 Please contact me if you have other questions.
