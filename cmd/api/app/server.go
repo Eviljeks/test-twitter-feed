@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -60,7 +61,12 @@ func (c *Config) Run() {
 
 	// end setup
 
-	r, err := NewHandler(c, conn, publisher)
+	templatesBasePath, err := filepath.Abs("./../../../templates/")
+	if err != nil {
+		panic(fmt.Sprintf("templates: %s", err.Error()))
+	}
+
+	r, err := NewHandler(c, conn, publisher, os.Getenv("SSE_PATH"), templatesBasePath)
 	if err != nil {
 		panic(err)
 	}
