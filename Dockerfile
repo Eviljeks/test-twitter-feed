@@ -5,10 +5,11 @@ WORKDIR /app
 COPY go.mod ./
 COPY go.sum ./
 
-COPY cmd cmd
-COPY internal internal
 COPY migrations migrations
 COPY pkg pkg
+COPY cmd cmd
+COPY internal internal
+COPY templates templates
 
 RUN go mod download
 
@@ -19,6 +20,7 @@ FROM gcr.io/distroless/base-debian11
 WORKDIR /
 
 COPY --from=build /twitter-feed /twitter-feed
+COPY --from=build /app/templates /templates
 
 EXPOSE 3000
 

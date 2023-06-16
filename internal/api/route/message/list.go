@@ -1,55 +1,28 @@
 package message
 
 import (
-	"html/template"
-	"net/http"
+	"io"
 
-	"github.com/Eviljeks/test-twitter-feed/internal/api"
 	"github.com/Eviljeks/test-twitter-feed/internal/messages"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
 	"github.com/gin-gonic/gin"
 )
 
-const tpl = `
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Twitter feed</title>
-	</head>
-	<body>
-		<h3>Feed</h3>
-		<div id="feed">
-		{{range .Msgs}}<div>{{ .UUID }}: {{ .Content }} </div>{{end}}
-		</div>
-	</body>
-	<script>
-	const evtSource = new EventSource("http://localhost:3001/sse/messages/new");
-
-	evtSource.addEventListener("messages", (event) => {
-		const newElement = document.createElement("div");
-		const eventList = document.getElementById("feed");
-		const data = JSON.parse(event.data);
-		newElement.textContent = data.uuid + ": " + data.content;
-		eventList.prepend(newElement);
-	  });
-	</script>
-</html>`
+type Renderer interface {
+	Render(tmplName string, data interface{}, w io.Writer) error
+}
 
 type ListHandler struct {
 	store    *store.Store
-	template *template.Template
+	renderer Renderer
+	ssePath  string
 }
 
-func NewListHandler(store *store.Store) (*ListHandler, error) {
-	t, err := template.New("webpage").Parse(tpl)
-	if err != nil {
-		return nil, err
-	}
-
+func NewListHandler(store *store.Store, renderer Renderer, ssePath string) (*ListHandler, error) {
 	return &ListHandler{
 		store:    store,
-		template: t,
+		renderer: renderer,
+		ssePath:  ssePath,
 	}, nil
 }
 
@@ -57,17 +30,22 @@ func (lh *ListHandler) Handle(r gin.IRouter) {
 	r.GET("/messages", func(ctx *gin.Context) {
 		msgs, err := lh.store.ListMessages(ctx)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, api.ErrorBadRequest(err))
+			lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
 
 			return
 		}
 
 		data := struct {
-			Msgs []*messages.Message
+			Msgs    []*messages.Message
+			SSEPath string
 		}{
-			Msgs: msgs,
+			Msgs:    msgs,
+			SSEPath: lh.ssePath,
 		}
 
-		lh.template.Execute(ctx.Writer, data)
+		err = lh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
+		if err != nil {
+			lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		}
 	})
 }
