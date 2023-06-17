@@ -31,10 +31,14 @@ func NewConfig(messagesQueueName string) *Config {
 }
 
 func (c *Config) Run() {
+	var (
+		amqpURL = os.Getenv("AMQP_URL")
+	)
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// setup amqp
-	amqpConn, err := amqputil.Connect(ctx, os.Getenv("AMQP_URL"), time.Second, uint8(5))
+	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(5))
 	if err != nil {
 		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
 	}
@@ -70,6 +74,7 @@ func (c *Config) Run() {
 			case d := <-msgs:
 				agent.Publish(string(d.Body))
 			case <-ctx.Done():
+				ch.Cancel(c.MessagesQueueName, false)
 				return
 
 			}

@@ -12,9 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
+	"github.com/Eviljeks/test-twitter-feed/internal/store"
+	"github.com/Eviljeks/test-twitter-feed/internal/templating"
 	"github.com/Eviljeks/test-twitter-feed/pkg/amqputil"
 	"github.com/Eviljeks/test-twitter-feed/pkg/pgutil"
 )
+
+const templatesRelativePath = "./../../../templates/"
 
 type Config struct {
 	Port              string
@@ -29,10 +33,16 @@ func NewConfig(messagesQueueName string) *Config {
 }
 
 func (c *Config) Run() {
+	var (
+		databaseURL = os.Getenv("DATABASE_URL")
+		amqpURL     = os.Getenv("AMQP_URL")
+		ssePath     = os.Getenv("SSE_PATH")
+	)
+
 	ctx := context.Background()
 
 	// setup db
-	conn, err := pgutil.ConnectWithWait(ctx, os.Getenv("DATABASE_URL"), time.Second, uint8(5))
+	conn, err := pgutil.ConnectWithWait(ctx, databaseURL, time.Second, uint8(5))
 	if err != nil {
 		panic(fmt.Sprintf("db connection failed, err: %s", err.Error()))
 	}
@@ -40,7 +50,7 @@ func (c *Config) Run() {
 	defer conn.Close(ctx)
 
 	// setup amqp
-	amqpConn, err := amqputil.Connect(ctx, os.Getenv("AMQP_URL"), time.Second, uint8(5))
+	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(5))
 	if err != nil {
 		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
 	}
@@ -59,14 +69,17 @@ func (c *Config) Run() {
 		panic(fmt.Sprintf("publisher failed, err: %s", err.Error()))
 	}
 
-	// end setup
-
-	templatesBasePath, err := filepath.Abs("./../../../templates/")
+	templatesBasePath, err := filepath.Abs(templatesRelativePath)
 	if err != nil {
 		panic(fmt.Sprintf("templates: %s", err.Error()))
 	}
 
-	r, err := NewHandler(c, conn, publisher, os.Getenv("SSE_PATH"), templatesBasePath)
+	s := store.NewStore(conn)
+	renderer := templating.NewRenderer(templatesBasePath)
+
+	// end setup
+
+	r, err := NewHandler(publisher, s, renderer, ssePath)
 	if err != nil {
 		panic(err)
 	}

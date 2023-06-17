@@ -1,14 +1,12 @@
 package bot
 
 import (
-	"os"
-
 	"github.com/Eviljeks/test-twitter-feed/cmd/bot/app"
 	"github.com/spf13/cobra"
 )
 
 func NewBotCommand() *cobra.Command {
-	cfg := app.NewConfig(os.Getenv("API_BASE_PATH"))
+	cfg := app.NewConfig()
 
 	cmd := &cobra.Command{
 		Use: "bot",

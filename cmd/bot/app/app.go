@@ -15,21 +15,22 @@ import (
 type Config struct {
 	DelaySec       uint
 	RequestsPerMin uint
-	ApiBasePath    string
 }
 
-func NewConfig(apiBasePath string) *Config {
-	return &Config{
-		ApiBasePath: apiBasePath,
-	}
+func NewConfig() *Config {
+	return &Config{}
 }
 
 func (c *Config) Run() {
+	var (
+		apiBasePath = os.Getenv("API_BASE_PATH")
+	)
+
 	ctx := context.Background()
 
 	httpClient := http.DefaultClient
 
-	apiClient := client.NewApiClient(httpClient, c.ApiBasePath)
+	apiClient := client.NewApiClient(httpClient, apiBasePath)
 
 	faker := faker.New()
 

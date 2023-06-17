@@ -31,9 +31,11 @@ func NewBot(delaySec uint, requestsPerMin uint, apiClient *client.ApiClient, fak
 }
 
 func (b *Bot) Run(ctx context.Context) {
-	time.Sleep(time.Second * time.Duration(b.delaySec))
+	tick := time.Second * time.Duration(60/b.requestsPerMin)
 
-	ticker := time.NewTicker(time.Second * time.Duration(60/b.requestsPerMin))
+	time.Sleep(time.Second*time.Duration(b.delaySec) - tick)
+
+	ticker := time.NewTicker(tick)
 
 	for {
 		select {
