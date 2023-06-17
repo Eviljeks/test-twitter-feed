@@ -4,14 +4,14 @@ import "sync"
 
 type Agent struct {
 	mu     sync.Mutex
-	subs   []chan string
+	subs   map[chan string]struct{}
 	quit   chan struct{}
 	closed bool
 }
 
 func NewAgent() *Agent {
 	return &Agent{
-		subs: make([]chan string, 0),
+		subs: make(map[chan string]struct{}, 0),
 		quit: make(chan struct{}),
 	}
 }
@@ -24,12 +24,12 @@ func (b *Agent) Publish(msg string) {
 		return
 	}
 
-	for _, ch := range b.subs {
+	for ch := range b.subs {
 		ch <- msg
 	}
 }
 
-func (b *Agent) Subscribe() <-chan string {
+func (b *Agent) Subscribe() chan string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -38,8 +38,20 @@ func (b *Agent) Subscribe() <-chan string {
 	}
 
 	ch := make(chan string)
-	b.subs = append(b.subs, ch)
+	b.subs[ch] = struct{}{}
 	return ch
+}
+
+func (b *Agent) Unsubscribe(ch chan string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if b.closed {
+		return
+	}
+
+	close(ch)
+	delete(b.subs, ch)
 }
 
 func (b *Agent) Close() {
@@ -53,7 +65,7 @@ func (b *Agent) Close() {
 	b.closed = true
 	close(b.quit)
 
-	for _, ch := range b.subs {
+	for ch := range b.subs {
 		close(ch)
 	}
 }

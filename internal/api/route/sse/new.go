@@ -24,6 +24,8 @@ func NewNewHandler(eventName string, agent *subscriber.Agent) *NewHandler {
 func (nh *NewHandler) Handle(ctx context.Context, r gin.IRouter) {
 	r.GET("/messages/new", func(ctx *gin.Context) {
 		ch := nh.agent.Subscribe()
+		defer logrus.Println("unsubscribed")
+		defer nh.agent.Unsubscribe(ch)
 
 		ctx.Header("Access-Control-Allow-Origin", "*")
 
@@ -38,7 +40,7 @@ func (nh *NewHandler) Handle(ctx context.Context, r gin.IRouter) {
 
 					return false
 				case <-ctx.Done():
-					logrus.Print("SSE ctx.Done")
+
 					return false
 				}
 			}
