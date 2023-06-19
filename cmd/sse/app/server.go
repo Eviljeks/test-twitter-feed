@@ -8,10 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
 	"github.com/Eviljeks/test-twitter-feed/internal/subscriber"
 	"github.com/Eviljeks/test-twitter-feed/pkg/amqputil"
-	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -38,7 +39,7 @@ func (c *Config) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// setup amqp
-	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(5))
+	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(10))
 	if err != nil {
 		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
 	}

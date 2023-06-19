@@ -42,7 +42,7 @@ func (c *Config) Run() {
 	ctx := context.Background()
 
 	// setup db
-	conn, err := pgutil.ConnectWithWait(ctx, databaseURL, time.Second, uint8(5))
+	conn, err := pgutil.ConnectWithWait(ctx, databaseURL, time.Second, uint8(10))
 	if err != nil {
 		panic(fmt.Sprintf("db connection failed, err: %s", err.Error()))
 	}
@@ -50,7 +50,7 @@ func (c *Config) Run() {
 	defer conn.Close(ctx)
 
 	// setup amqp
-	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(5))
+	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(10))
 	if err != nil {
 		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
 	}
