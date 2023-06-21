@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	"github.com/Eviljeks/test-twitter-feed/internal/api/route/sse"
+	"github.com/Eviljeks/test-twitter-feed/internal/http/route/sse"
 	"github.com/Eviljeks/test-twitter-feed/internal/subscriber"
 	"github.com/gin-gonic/gin"
 )
@@ -13,9 +13,7 @@ func NewHandler(ctx context.Context, cfg *Config, agent *subscriber.Agent) (*gin
 
 	r := gin.Default()
 
-	api := r.Group("/sse")
-
-	newHandler.Handle(ctx, api)
+	r.GET("/sse/messages/new", newHandler.Handle)
 
 	return r, nil
 }
