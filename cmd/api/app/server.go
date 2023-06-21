@@ -62,7 +62,10 @@ func (c *Config) Run() {
 	}
 	defer ch.Close()
 
-	amqp.Setup(ch, c.MessagesQueueName)
+	err = amqp.Setup(ch, c.MessagesQueueName)
+	if err != nil {
+		panic(fmt.Sprintf("amqp setup failed, err: %s", err.Error()))
+	}
 
 	publisher := amqp.NewSingleQueueAMQPPublisher(ch, c.MessagesQueueName)
 	if err != nil {

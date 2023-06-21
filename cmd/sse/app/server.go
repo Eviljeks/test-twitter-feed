@@ -51,7 +51,10 @@ func (c *Config) Run() {
 	}
 	defer ch.Close()
 
-	amqp.Setup(ch, c.MessagesQueueName)
+	err = amqp.Setup(ch, c.MessagesQueueName)
+	if err != nil {
+		panic(fmt.Sprintf("amqp setup failed, err: %s", err.Error()))
+	}
 
 	msgs, err := ch.Consume(
 		c.MessagesQueueName,
@@ -75,9 +78,11 @@ func (c *Config) Run() {
 			case d := <-msgs:
 				agent.Publish(string(d.Body))
 			case <-ctx.Done():
-				ch.Cancel(c.MessagesQueueName, false)
+				err := ch.Cancel(c.MessagesQueueName, false)
+				if err != nil {
+					logrus.Errorf("channel cancel err: %v", err)
+				}
 				return
-
 			}
 		}
 	}()

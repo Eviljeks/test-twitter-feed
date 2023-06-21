@@ -11,19 +11,19 @@ const saveMessageURI = "/messages"
 
 var ErrResponseStatusCodeError = errors.New("response status code >= 400")
 
-type ApiClient struct {
+type APIClient struct {
 	client      *http.Client
 	apiBasePath string
 }
 
-func NewApiClient(client *http.Client, apiBasePath string) *ApiClient {
-	return &ApiClient{
+func NewAPIClient(client *http.Client, apiBasePath string) *APIClient {
+	return &APIClient{
 		client:      client,
 		apiBasePath: apiBasePath,
 	}
 }
 
-func (c *ApiClient) SaveMessage(content string) error {
+func (c *APIClient) SaveMessage(content string) error {
 	body, err := json.Marshal(struct {
 		Content string `json:"content"`
 	}{
@@ -52,6 +52,6 @@ func (c *ApiClient) SaveMessage(content string) error {
 	return nil
 }
 
-func (c *ApiClient) path(uri string) string {
+func (c *APIClient) path(uri string) string {
 	return c.apiBasePath + uri
 }
