@@ -17,11 +17,11 @@ const wordsMax = 15
 type Bot struct {
 	delaySec       uint
 	requestsPerMin uint
-	apiClient      *client.ApiClient
+	apiClient      *client.APIClient
 	faker          *faker.Faker
 }
 
-func NewBot(delaySec uint, requestsPerMin uint, apiClient *client.ApiClient, faker *faker.Faker) *Bot {
+func NewBot(delaySec uint, requestsPerMin uint, apiClient *client.APIClient, faker *faker.Faker) *Bot {
 	return &Bot{
 		delaySec:       delaySec,
 		requestsPerMin: requestsPerMin,

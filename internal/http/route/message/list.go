@@ -2,6 +2,7 @@ package message
 
 import (
 	"io"
+	"net/http"
 
 	"github.com/Eviljeks/test-twitter-feed/internal/messages"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
@@ -27,9 +28,14 @@ func NewListHandler(store *store.Store, renderer Renderer, ssePath string) (*Lis
 }
 
 func (lh *ListHandler) Handle(ctx *gin.Context) {
+	ctx.Header("Content-Type", "text/html; charset=utf-8")
+
 	msgs, err := lh.store.ListMessages(ctx)
 	if err != nil {
-		lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		err := lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		if err != nil {
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+		}
 
 		return
 	}
@@ -44,6 +50,9 @@ func (lh *ListHandler) Handle(ctx *gin.Context) {
 
 	err = lh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
 	if err != nil {
-		lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		err = lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		if err != nil {
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+		}
 	}
 }

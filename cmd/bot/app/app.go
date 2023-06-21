@@ -30,7 +30,7 @@ func (c *Config) Run() {
 
 	httpClient := http.DefaultClient
 
-	apiClient := client.NewApiClient(httpClient, apiBasePath)
+	apiClient := client.NewAPIClient(httpClient, apiBasePath)
 
 	faker := faker.New()
 
