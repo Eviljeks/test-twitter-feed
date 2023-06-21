@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
-	"github.com/Eviljeks/test-twitter-feed/internal/api/route/message"
+	"github.com/Eviljeks/test-twitter-feed/internal/http/route/message"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
 	"github.com/Eviljeks/test-twitter-feed/internal/templating"
 	"github.com/gin-gonic/gin"
@@ -23,11 +23,8 @@ func NewHandler(
 
 	r := gin.Default()
 
-	api := r.Group("/api")
-
-	addHandler.Handle(api)
-
-	listHandler.Handle(r)
+	r.POST("/api/messages", addHandler.Handle)
+	r.GET("/messages", listHandler.Handle)
 
 	return r, nil
 }

@@ -26,26 +26,24 @@ func NewListHandler(store *store.Store, renderer Renderer, ssePath string) (*Lis
 	}, nil
 }
 
-func (lh *ListHandler) Handle(r gin.IRouter) {
-	r.GET("/messages", func(ctx *gin.Context) {
-		msgs, err := lh.store.ListMessages(ctx)
-		if err != nil {
-			lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+func (lh *ListHandler) Handle(ctx *gin.Context) {
+	msgs, err := lh.store.ListMessages(ctx)
+	if err != nil {
+		lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
 
-			return
-		}
+		return
+	}
 
-		data := struct {
-			Msgs    []*messages.Message
-			SSEPath string
-		}{
-			Msgs:    msgs,
-			SSEPath: lh.ssePath,
-		}
+	data := struct {
+		Msgs    []*messages.Message
+		SSEPath string
+	}{
+		Msgs:    msgs,
+		SSEPath: lh.ssePath,
+	}
 
-		err = lh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
-		if err != nil {
-			lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
-		}
-	})
+	err = lh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
+	if err != nil {
+		lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+	}
 }
