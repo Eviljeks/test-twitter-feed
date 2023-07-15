@@ -16,6 +16,11 @@ services:
     depends_on:
       - rabbitmq
       - roach1
+    healthcheck:
+      test: [ "CMD", "/simple-healthcheck", "http://api:5000/health"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
   sse:
     image: twitter-feed:latest
     networks:
@@ -27,6 +32,11 @@ services:
     command: "/twitter-feed sse"
     depends_on:
       - rabbitmq
+    healthcheck:
+      test: [ "CMD", "/simple-healthcheck", "http://sse:5000/health"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
   bot:
     image: twitter-feed:latest
     networks:
@@ -37,6 +47,11 @@ services:
     depends_on:
       - api
       - roach1
+    healthcheck:
+      test: [ "CMD", "/simple-healthcheck", "http://bot:5000/health"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:

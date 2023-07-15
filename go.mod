@@ -3,6 +3,7 @@ module github.com/Eviljeks/test-twitter-feed
 go 1.20
 
 require (
+	github.com/Eviljeks/simple-healthcheck v0.0.0-20230715155325-6a8782276f55
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.0

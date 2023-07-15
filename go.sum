@@ -1,4 +1,6 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/Eviljeks/simple-healthcheck v0.0.0-20230715155325-6a8782276f55 h1:PvVJNHSKmyB8xvUgsv+pCo2WpiRYNEjUiX58nZZnN5s=
+github.com/Eviljeks/simple-healthcheck v0.0.0-20230715155325-6a8782276f55/go.mod h1:MouJy+QTjMuRBvT26FA1pRqGN3WsYUgiWmvpFO45AeQ=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8afzqM=
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
