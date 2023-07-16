@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ListJSONHandler struct {
+type ListHandler struct {
 	store *store.Store
 }
 
-func NewListJSONHandler(store *store.Store) *ListJSONHandler {
-	return &ListJSONHandler{
+func NewListHandler(store *store.Store) *ListHandler {
+	return &ListHandler{
 		store: store,
 	}
 }
 
-func (ljh *ListJSONHandler) Handle(ctx *gin.Context) {
+func (ljh *ListHandler) Handle(ctx *gin.Context) {
 	msgs, err := ljh.store.ListMessages(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, api.ErrorBadRequest(err))

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -14,12 +13,9 @@ import (
 	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
 	"github.com/Eviljeks/test-twitter-feed/internal/http/health"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
-	"github.com/Eviljeks/test-twitter-feed/internal/templating"
 	"github.com/Eviljeks/test-twitter-feed/pkg/amqputil"
 	"github.com/Eviljeks/test-twitter-feed/pkg/pgutil"
 )
-
-const templatesRelativePath = "./../../../templates/"
 
 type Config struct {
 	Port              string
@@ -39,7 +35,6 @@ func (c *Config) Run() {
 	var (
 		databaseURL = os.Getenv("DATABASE_URL")
 		amqpURL     = os.Getenv("AMQP_URL")
-		ssePath     = os.Getenv("SSE_PATH")
 	)
 
 	ctx := context.Background()
@@ -75,17 +70,11 @@ func (c *Config) Run() {
 		panic(fmt.Sprintf("publisher failed, err: %s", err.Error()))
 	}
 
-	templatesBasePath, err := filepath.Abs(templatesRelativePath)
-	if err != nil {
-		panic(fmt.Sprintf("templates: %s", err.Error()))
-	}
-
 	s := store.NewStore(conn)
-	renderer := templating.NewRenderer(templatesBasePath)
 
 	// end setup
 
-	server, err := NewServer(publisher, s, renderer, ssePath)
+	server, err := NewServer(publisher, s)
 	if err != nil {
 		panic(err)
 	}

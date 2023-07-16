@@ -6,7 +6,6 @@ import (
 	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
 	"github.com/Eviljeks/test-twitter-feed/internal/http/route/message"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
-	"github.com/Eviljeks/test-twitter-feed/internal/templating"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -14,15 +13,8 @@ import (
 func NewServer(
 	publisher *amqp.SingleQueueAMQPPublisher,
 	store *store.Store,
-	renderer *templating.Renderer,
-	ssePath string,
 ) (*gin.Engine, error) {
-	listHTMLHandler, err := message.NewListHTMLHandler(store, renderer, ssePath)
-	if err != nil {
-		return nil, err
-	}
-
-	listJSONHandler := message.NewListJSONHandler(store)
+	listJSONHandler := message.NewListHandler(store)
 
 	addHandler := message.NewAddHandler(store, publisher)
 
@@ -35,8 +27,6 @@ func NewServer(
 		ExposeHeaders: []string{"Content-Length"},
 		MaxAge:        12 * time.Hour,
 	}))
-
-	r.GET("/messages", listHTMLHandler.Handle)
 
 	g := r.Group("/api")
 

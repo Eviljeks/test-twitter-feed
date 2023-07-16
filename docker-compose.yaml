@@ -11,7 +11,6 @@ services:
     environment:
       DATABASE_URL: "postgresql://root@roach1:26257/defaultdb?sslmode=disable"
       AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"
-      SSE_PATH: "http://localhost:3001/sse/messages/new"
     command: "/twitter-feed api"
     depends_on:
       - rabbitmq
