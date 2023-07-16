@@ -13,26 +13,26 @@ type Renderer interface {
 	Render(tmplName string, data interface{}, w io.Writer) error
 }
 
-type ListHandler struct {
+type ListHTMLHandler struct {
 	store    *store.Store
 	renderer Renderer
 	ssePath  string
 }
 
-func NewListHandler(store *store.Store, renderer Renderer, ssePath string) (*ListHandler, error) {
-	return &ListHandler{
+func NewListHTMLHandler(store *store.Store, renderer Renderer, ssePath string) (*ListHTMLHandler, error) {
+	return &ListHTMLHandler{
 		store:    store,
 		renderer: renderer,
 		ssePath:  ssePath,
 	}, nil
 }
 
-func (lh *ListHandler) Handle(ctx *gin.Context) {
+func (lhh *ListHTMLHandler) Handle(ctx *gin.Context) {
 	ctx.Header("Content-Type", "text/html; charset=utf-8")
 
-	msgs, err := lh.store.ListMessages(ctx)
+	msgs, err := lhh.store.ListMessages(ctx)
 	if err != nil {
-		err := lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		err := lhh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
@@ -45,12 +45,12 @@ func (lh *ListHandler) Handle(ctx *gin.Context) {
 		SSEPath string
 	}{
 		Msgs:    msgs,
-		SSEPath: lh.ssePath,
+		SSEPath: lhh.ssePath,
 	}
 
-	err = lh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
+	err = lhh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
 	if err != nil {
-		err = lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
+		err = lhh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
