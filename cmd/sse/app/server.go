@@ -2,113 +2,18 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
-	"github.com/sirupsen/logrus"
-
-	"github.com/Eviljeks/test-twitter-feed/internal/amqp"
+	"github.com/Eviljeks/test-twitter-feed/internal/http/route/sse"
 	"github.com/Eviljeks/test-twitter-feed/internal/subscriber"
-	"github.com/Eviljeks/test-twitter-feed/pkg/amqputil"
+	"github.com/gin-gonic/gin"
 )
 
-type Config struct {
-	NewMessageEventName string
-	MessagesQueueName   string
-	Port                string
-	ShutdownDelay       uint8
-}
+func NewHandler(ctx context.Context, cfg *Config, agent *subscriber.Agent) (*gin.Engine, error) {
+	newHandler := sse.NewNewHandler(cfg.NewMessageEventName, agent)
 
-func NewConfig(messagesQueueName string) *Config {
-	return &Config{
-		NewMessageEventName: "messages",
-		MessagesQueueName:   messagesQueueName,
-		Port:                ":3000",
-		ShutdownDelay:       2,
-	}
-}
+	r := gin.Default()
 
-func (c *Config) Run() {
-	var (
-		amqpURL = os.Getenv("AMQP_URL")
-	)
+	r.GET("/sse/messages/new", newHandler.Handle)
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	// setup amqp
-	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(10))
-	if err != nil {
-		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
-	}
-	defer amqpConn.Close()
-
-	ch, err := amqpConn.Channel()
-	if err != nil {
-		panic(fmt.Sprintf("amqp channel failed, err: %s", err.Error()))
-	}
-	defer ch.Close()
-
-	err = amqp.Setup(ch, c.MessagesQueueName)
-	if err != nil {
-		panic(fmt.Sprintf("amqp setup failed, err: %s", err.Error()))
-	}
-
-	msgs, err := ch.Consume(
-		c.MessagesQueueName,
-		"",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		panic(fmt.Sprintf("amqp consume failed, err: %s", err.Error()))
-	}
-
-	agent := subscriber.NewAgent()
-	defer agent.Close()
-
-	go func() {
-		for {
-			select {
-			case d := <-msgs:
-				agent.Publish(string(d.Body))
-			case <-ctx.Done():
-				err := ch.Cancel(c.MessagesQueueName, false)
-				if err != nil {
-					logrus.Errorf("channel cancel err: %v", err)
-				}
-				return
-			}
-		}
-	}()
-
-	r, err := NewHandler(ctx, c, agent)
-	if err != nil {
-		panic(err)
-	}
-
-	go func() {
-		sErr := r.Run(c.Port)
-		if sErr != nil {
-			logrus.Fatalf("failed to run server: %v", sErr)
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-
-	<-quit
-
-	logrus.Print("SSE server received shutdown signal")
-
-	cancel()
-
-	time.Sleep(time.Second * time.Duration(c.ShutdownDelay))
-
-	logrus.Print("SSE canceled")
+	return r, nil
 }
