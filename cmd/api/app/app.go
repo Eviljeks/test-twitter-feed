@@ -38,6 +38,7 @@ func (c *Config) Run() {
 	var (
 		databaseURL = os.Getenv("DATABASE_URL")
 		amqpURL     = os.Getenv("AMQP_URL")
+		frontendURL = os.Getenv("FRONTEND_URL")
 	)
 
 	ctx := context.Background()
@@ -48,8 +49,8 @@ func (c *Config) Run() {
 	var amqpConn *amqp.Connection
 
 	eg.Go(func() error {
-		var err error
 		// setup db
+		var err error
 		conn, err = pgutil.ConnectWithWait(ctx, databaseURL, time.Second, uint8(10))
 		if err != nil {
 			return fmt.Errorf("db connection failed, err: %s", err.Error())
@@ -106,7 +107,7 @@ func (c *Config) Run() {
 
 	// end setup
 
-	server, err := NewServer(publisher, s)
+	server, err := NewServer(publisher, s, frontendURL)
 	if err != nil {
 		panic(err)
 	}
@@ -118,12 +119,12 @@ func (c *Config) Run() {
 		}
 	}()
 
-	h := health.NewServer()
+	health := health.NewServer()
 
 	go func() {
-		sErr := h.Run(c.HealthPort)
+		sErr := health.Run(c.HealthPort)
 		if sErr != nil {
-			logrus.Fatalf("failed to metrics server: %v", sErr)
+			logrus.Fatalf("failed to health server: %v", sErr)
 		}
 	}()
 

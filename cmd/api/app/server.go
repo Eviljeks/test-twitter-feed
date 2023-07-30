@@ -13,6 +13,7 @@ import (
 func NewServer(
 	publisher *amqp.SingleQueueAMQPPublisher,
 	store *store.Store,
+	frontendURL string,
 ) (*gin.Engine, error) {
 	listJSONHandler := message.NewListHandler(store)
 
@@ -21,7 +22,7 @@ func NewServer(
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{"*"},
+		AllowOrigins:  []string{frontendURL},
 		AllowMethods:  []string{"GET"},
 		AllowHeaders:  []string{"Origin"},
 		ExposeHeaders: []string{"Content-Length"},
