@@ -9,7 +9,6 @@ COPY migrations migrations
 COPY pkg pkg
 COPY cmd cmd
 COPY internal internal
-COPY templates templates
 
 RUN go mod download
 
@@ -23,7 +22,6 @@ WORKDIR /
 
 COPY --from=build /twitter-feed /twitter-feed
 COPY --from=build /simple-healthcheck /simple-healthcheck
-COPY --from=build /app/templates /templates
 
 EXPOSE 3000
 EXPOSE 5000

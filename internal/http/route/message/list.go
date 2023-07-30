@@ -1,58 +1,29 @@
 package message
 
 import (
-	"io"
 	"net/http"
 
-	"github.com/Eviljeks/test-twitter-feed/internal/messages"
+	api "github.com/Eviljeks/test-twitter-feed/internal/http"
 	"github.com/Eviljeks/test-twitter-feed/internal/store"
 	"github.com/gin-gonic/gin"
 )
 
-type Renderer interface {
-	Render(tmplName string, data interface{}, w io.Writer) error
-}
-
 type ListHandler struct {
-	store    *store.Store
-	renderer Renderer
-	ssePath  string
+	store *store.Store
 }
 
-func NewListHandler(store *store.Store, renderer Renderer, ssePath string) (*ListHandler, error) {
+func NewListHandler(store *store.Store) *ListHandler {
 	return &ListHandler{
-		store:    store,
-		renderer: renderer,
-		ssePath:  ssePath,
-	}, nil
+		store: store,
+	}
 }
 
-func (lh *ListHandler) Handle(ctx *gin.Context) {
-	ctx.Header("Content-Type", "text/html; charset=utf-8")
-
-	msgs, err := lh.store.ListMessages(ctx)
+func (ljh *ListHandler) Handle(ctx *gin.Context) {
+	msgs, err := ljh.store.ListMessages(ctx)
 	if err != nil {
-		err := lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
-		if err != nil {
-			ctx.AbortWithStatus(http.StatusInternalServerError)
-		}
-
+		ctx.JSON(http.StatusBadRequest, api.ErrorBadRequest(err))
 		return
 	}
 
-	data := struct {
-		Msgs    []*messages.Message
-		SSEPath string
-	}{
-		Msgs:    msgs,
-		SSEPath: lh.ssePath,
-	}
-
-	err = lh.renderer.Render("feed.tmpl.html", data, ctx.Writer)
-	if err != nil {
-		err = lh.renderer.Render("error.tmpl.html", nil, ctx.Writer)
-		if err != nil {
-			ctx.AbortWithStatus(http.StatusInternalServerError)
-		}
-	}
+	ctx.JSON(http.StatusOK, api.OK(msgs))
 }

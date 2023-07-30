@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-const saveMessageURI = "/messages"
+const saveMessageURI = "/message"
 
 var ErrResponseStatusCodeError = errors.New("response status code >= 400")
 
