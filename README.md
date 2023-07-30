@@ -45,8 +45,7 @@ to see containers logs.
 To stop application use `./stop.sh`
 
 ## Dev
-
-Visit `http://localhost:3000/messages` for feed.
+Use [Frontend](https://github.com/Eviljeks/test-twitter-feed-frontend) repository for frontend implementation.
 
 You can open multiple tabs and you will receive on each tab updates from bot / other users.
 
@@ -54,7 +53,9 @@ Bot'll begin creating messages after 15 seconds (configurable in `docker-compose
 
 To increase bot's post frequency, increase `--reqs-per-min` argument for `bot` service command in `docker-compose.yaml`.
 
-# Implementation
+`docker compose exec -it roach1 ./cockroach sql --host=roach1:26257 --insecure` enter cockroach.
+
+# Implementation details
 
 Look into `docker-compose.yaml` for better usage userstanding. 
 
