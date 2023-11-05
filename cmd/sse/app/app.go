@@ -21,7 +21,8 @@ type Config struct {
 	MessagesQueueName   string
 	Port                string
 	HealthPort          string
-	ShutdownDelay       uint8
+	ShutdownDelaySecs   uint8
+	AMQPTimeoutSecs     uint8
 }
 
 func NewConfig(messagesQueueName string) *Config {
@@ -30,7 +31,8 @@ func NewConfig(messagesQueueName string) *Config {
 		MessagesQueueName:   messagesQueueName,
 		Port:                ":3000",
 		HealthPort:          ":5000",
-		ShutdownDelay:       2,
+		ShutdownDelaySecs:   2,
+		AMQPTimeoutSecs:     30,
 	}
 }
 
@@ -43,7 +45,7 @@ func (c *Config) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// setup amqp
-	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, uint8(10))
+	amqpConn, err := amqputil.Connect(ctx, amqpURL, time.Second, c.AMQPTimeoutSecs)
 	if err != nil {
 		panic(fmt.Sprintf("amqp connect failed, err: %s", err.Error()))
 	}
@@ -121,7 +123,7 @@ func (c *Config) Run() {
 
 	cancel()
 
-	time.Sleep(time.Second * time.Duration(c.ShutdownDelay))
+	time.Sleep(time.Second * time.Duration(c.ShutdownDelaySecs))
 
 	logrus.Print("SSE canceled")
 }

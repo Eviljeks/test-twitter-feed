@@ -21,16 +21,20 @@ import (
 )
 
 type Config struct {
-	Port              string
-	HealthPort        string
-	MessagesQueueName string
+	Port                string
+	HealthPort          string
+	MessagesQueueName   string
+	PostgresTimeoutSecs uint8
+	AMQPTimeoutSecs     uint8
 }
 
 func NewConfig(messagesQueueName string) *Config {
 	return &Config{
-		MessagesQueueName: messagesQueueName,
-		Port:              ":3000",
-		HealthPort:        ":5000",
+		MessagesQueueName:   messagesQueueName,
+		Port:                ":3000",
+		HealthPort:          ":5000",
+		PostgresTimeoutSecs: 30,
+		AMQPTimeoutSecs:     30,
 	}
 }
 
@@ -51,7 +55,7 @@ func (c *Config) Run() {
 	eg.Go(func() error {
 		// setup db
 		var err error
-		conn, err = pgutil.ConnectWithWait(ctx, databaseURL, time.Second, uint8(10))
+		conn, err = pgutil.ConnectWithWait(ctx, databaseURL, time.Second, c.PostgresTimeoutSecs)
 		if err != nil {
 			return fmt.Errorf("db connection failed, err: %s", err.Error())
 		}
@@ -63,7 +67,7 @@ func (c *Config) Run() {
 	eg.Go(func() error {
 		// setup amqp
 		var err error
-		amqpConn, err = amqputil.Connect(ctx, amqpURL, time.Second, uint8(10))
+		amqpConn, err = amqputil.Connect(ctx, amqpURL, time.Second, c.AMQPTimeoutSecs)
 		if err != nil {
 			return fmt.Errorf("amqp connect failed, err: %s", err.Error())
 		}
