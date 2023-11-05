@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/Eviljeks/simple-healthcheck v0.0.0-20230715155325-6a8782276f55
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.18.1
@@ -13,13 +14,13 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
 	github.com/streadway/amqp v1.0.0
+	golang.org/x/sync v0.3.0
 )
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
-	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

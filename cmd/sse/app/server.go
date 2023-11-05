@@ -10,13 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewHandler(ctx context.Context, cfg *Config, agent *subscriber.Agent) (*gin.Engine, error) {
+func NewServer(ctx context.Context, cfg *Config, agent *subscriber.Agent, frontendURL string) (*gin.Engine, error) {
 	newHandler := sse.NewNewHandler(cfg.NewMessageEventName, agent)
 
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{"*"},
+		AllowOrigins:  []string{frontendURL},
 		AllowMethods:  []string{"GET"},
 		AllowHeaders:  []string{"Origin"},
 		ExposeHeaders: []string{"Content-Length"},

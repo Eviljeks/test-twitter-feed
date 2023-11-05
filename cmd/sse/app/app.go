@@ -38,7 +38,8 @@ func NewConfig(messagesQueueName string) *Config {
 
 func (c *Config) Run() {
 	var (
-		amqpURL = os.Getenv("AMQP_URL")
+		amqpURL     = os.Getenv("AMQP_URL")
+		frontendURL = os.Getenv("FRONTEND_URL")
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -92,22 +93,22 @@ func (c *Config) Run() {
 		}
 	}()
 
-	r, err := NewHandler(ctx, c, agent)
+	server, err := NewServer(ctx, c, agent, frontendURL)
 	if err != nil {
 		panic(err)
 	}
 
 	go func() {
-		sErr := r.Run(c.Port)
+		sErr := server.Run(c.Port)
 		if sErr != nil {
 			logrus.Fatalf("failed to run server: %v", sErr)
 		}
 	}()
 
-	h := health.NewServer()
+	health := health.NewServer()
 
 	go func() {
-		sErr := h.Run(c.HealthPort)
+		sErr := health.Run(c.HealthPort)
 		if sErr != nil {
 			logrus.Fatalf("failed to health server: %v", sErr)
 		}

@@ -11,6 +11,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://root@roach1:26257/defaultdb?sslmode=disable"
       AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"
+      FRONTEND_URL: "http://localhost:8000"
     command: "/twitter-feed api"
     depends_on:
       - rabbitmq
@@ -28,6 +29,7 @@ services:
       - 3001:3000
     environment:
       AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"
+      FRONTEND_URL: "http://localhost:8000"
     command: "/twitter-feed sse"
     depends_on:
       - rabbitmq
